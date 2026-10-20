@@ -11,779 +11,504 @@ app.get("/", (req, res) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10111b">
-<title>Orbit Browser</title>
+<meta name="theme-color" content="#101020">
+<title>Orbit Hub</title>
 <style>
 :root {
-  color-scheme: dark;
-  --bg:#10111b;
-  --panel:#191b29;
-  --panel2:#222437;
-  --border:#30334a;
-  --text:#f4f4fb;
-  --muted:#a0a4bd;
-  --accent:#a5a1ff;
+  --bg:#101020;
+  --panel:#19192e;
+  --panel2:#22223b;
+  --border:#343452;
+  --text:#f7f5ff;
+  --muted:#aaa8c6;
+  --accent:#b5a4ff;
 }
 * { box-sizing:border-box }
+html { scroll-behavior:smooth }
 body {
   margin:0;
-  background:var(--bg);
+  min-height:100vh;
   color:var(--text);
-  font:14px system-ui,sans-serif;
-  height:100dvh;
-  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 15% 0%,#39306a55,transparent 45%),
+    radial-gradient(ellipse at 90% 40%,#31265a33,transparent 40%),
+    var(--bg);
+  font-family:system-ui,-apple-system,sans-serif;
 }
 button,input { font:inherit }
+button,a { -webkit-tap-highlight-color:transparent }
 button {
-  cursor:pointer;
   color:var(--text);
-  border:1px solid transparent;
-  background:transparent;
-  border-radius:9px;
-  padding:8px 11px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:transform .18s,border-color .18s,background .18s;
 }
-button:hover { background:var(--panel2) }
-button:focus-visible,input:focus-visible {
-  outline:2px solid var(--accent);
-  outline-offset:2px;
+button:hover { border-color:var(--accent);transform:translateY(-1px) }
+a { color:inherit;text-decoration:none }
+.wrap { max-width:1100px;margin:auto;padding:0 22px }
+header {
+  position:sticky;
+  top:0;
+  z-index:5;
+  backdrop-filter:blur(18px);
+  background:#101020dd;
+  border-bottom:1px solid #34345288;
 }
-button:disabled { opacity:.3;cursor:default }
-#app {
-  height:100%;
-  display:flex;
-  flex-direction:column;
-}
-.top {
-  background:#151622;
-  border-bottom:1px solid var(--border);
-}
-.brandline {
+.nav {
+  min-height:72px;
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:10px 14px 5px;
+  justify-content:space-between;
+  gap:14px;
 }
+.brand { display:flex;align-items:center;gap:11px;font-weight:800;font-size:18px }
 .logo {
   display:grid;
   place-items:center;
-  width:30px;
-  height:30px;
-  border-radius:10px;
-  background:linear-gradient(135deg,#aaa5ff,#6965db);
-  color:#10111b;
-  font-size:21px;
-  font-weight:900;
+  width:40px;height:40px;
+  border-radius:14px;
+  color:#151127;
+  background:linear-gradient(135deg,#d5caff,#9381ff);
+  box-shadow:0 0 28px #9d8bff33;
+  font-size:25px;
 }
-.brand { font-size:16px;font-weight:750 }
-.tagline { color:var(--muted);font-size:11px }
-#tabs {
-  display:flex;
-  gap:5px;
-  align-items:center;
-  padding:7px 10px 0;
-  overflow-x:auto;
+.navlinks { display:flex;gap:7px;flex-wrap:wrap }
+.navlinks a {
+  color:var(--muted);
+  padding:9px 12px;
+  border-radius:9px;
 }
-.tab {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  min-width:90px;
-  max-width:210px;
-  flex:0 1 190px;
-  background:#202132;
-  border:1px solid var(--border);
-  border-bottom:0;
-  padding:8px 10px;
-  border-radius:10px 10px 0 0;
-}
-.tab.active { background:var(--bg) }
-.tabname {
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  flex:1;
-}
-.close {
-  padding:1px 5px;
-  border-radius:5px;
-}
-#toolbar {
-  display:flex;
-  align-items:center;
-  gap:5px;
-  padding:9px 12px 11px;
-}
-#address {
-  flex:1;
-  min-width:0;
-  background:#242638;
-  border:1px solid #383b54;
-  color:var(--text);
-  border-radius:12px;
-  padding:11px 14px;
-  outline:none;
-}
-#address:focus { border-color:var(--accent) }
-#go {
-  background:var(--accent);
-  color:#141426;
-  font-weight:750;
-}
-#go:hover { background:#c1beff }
-#bookmarks {
-  display:flex;
-  gap:6px;
-  padding:0 14px 10px;
-  overflow-x:auto;
-}
-.bookmark {
-  background:#222437;
-  border:1px solid var(--border);
-  white-space:nowrap;
+.navlinks a:hover { color:var(--text);background:var(--panel) }
+.hero { text-align:center;padding:75px 0 46px }
+.pill {
+  display:inline-block;
+  padding:7px 12px;
+  color:#d3c9ff;
+  background:#a994ff18;
+  border:1px solid #a994ff44;
+  border-radius:99px;
   font-size:12px;
-  padding:6px 10px;
-}
-main {
-  position:relative;
-  flex:1;
-  min-height:0;
-}
-#home {
-  height:100%;
-  overflow:auto;
-  padding:clamp(22px,5vw,65px) 20px;
-  text-align:center;
-}
-.hero { margin:0 auto;max-width:680px }
-.orb {
-  font-size:65px;
-  line-height:1.2;
-  color:var(--accent);
-  text-shadow:0 0 45px #7973ff55;
+  letter-spacing:.5px;
 }
 h1 {
-  font-size:clamp(35px,7vw,58px);
-  letter-spacing:-2px;
-  margin:7px 0;
+  margin:20px 0 12px;
+  font-size:clamp(42px,8vw,76px);
+  line-height:1.04;
+  letter-spacing:-3px;
 }
-.subtitle { color:var(--muted);font-size:15px }
-#homesearch {
+.gradient {
+  background:linear-gradient(100deg,#e2d8ff,#a89aff,#f3aefb);
+  background-clip:text;
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.sub {
+  color:var(--muted);
+  line-height:1.7;
+  max-width:540px;
+  margin:0 auto;
+}
+.search {
+  max-width:650px;
   display:flex;
-  gap:7px;
-  margin:28px auto;
-  padding:7px;
-  max-width:600px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:15px;
-}
-#homesearch input {
-  flex:1;
-  min-width:0;
-  padding:12px;
-  background:transparent;
-  border:0;
-  color:var(--text);
-  outline:none;
-}
-.tiles {
-  max-width:600px;
-  margin:25px auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
-  gap:12px;
-  text-align:left;
-}
-.tile {
-  border:1px solid var(--border);
-  background:var(--panel);
-  padding:17px;
-  border-radius:13px;
-  min-width:0;
-}
-.tile:hover { border-color:#7772ce }
-.tileicon { font-size:24px;margin-bottom:9px }
-.tiletitle { font-weight:700 }
-.tileurl {
-  color:var(--muted);
-  font-size:11px;
-  margin-top:4px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.sectiontitle {
-  color:var(--muted);
-  font-size:12px;
-  max-width:600px;
-  margin:22px auto 0;
-  text-align:left;
-}
-#viewer {
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
-  background:white;
-  display:none;
-}
-#notice {
-  display:none;
-  position:absolute;
-  inset:0;
-  overflow:auto;
-  padding:35px 20px;
-  background:var(--bg);
-  text-align:center;
-}
-.noticecard {
-  max-width:550px;
-  margin:35px auto;
-  padding:25px;
-  border:1px solid var(--border);
-  background:var(--panel);
+  gap:8px;
+  padding:8px;
+  margin:30px auto 0;
+  background:#1c1c32;
+  border:1px solid #45415f;
   border-radius:16px;
+  box-shadow:0 15px 55px #0002;
 }
-.noticecard p { color:var(--muted);line-height:1.7 }
-#status {
+.search input {
+  flex:1;
+  width:0;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  padding:12px;
+  color:var(--text);
+  font-size:15px;
+}
+.primary {
+  background:var(--accent);
+  color:#19132f;
+  border-color:transparent;
+  font-weight:750;
+}
+.primary:hover { background:#cbbfff }
+.section { padding:20px 0 30px }
+.sectionhead {
   display:flex;
+  align-items:center;
   justify-content:space-between;
   gap:12px;
-  padding:6px 12px;
+  margin-bottom:17px;
+}
+h2 { font-size:20px;margin:0;letter-spacing:-.4px }
+.small { color:var(--muted);font-size:12px }
+.grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;
+}
+.card {
+  position:relative;
+  min-width:0;
+  padding:20px;
+  border-radius:17px;
+  background:linear-gradient(145deg,#202039,#17172a);
+  border:1px solid var(--border);
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.card:hover {
+  transform:translateY(-4px);
+  border-color:#8f80d6;
+  box-shadow:0 12px 35px #0002;
+}
+.cardicon {
+  width:46px;height:46px;
+  display:grid;place-items:center;
+  background:#b5a4ff16;
+  border:1px solid #b5a4ff26;
+  border-radius:14px;
+  font-size:24px;
+  margin-bottom:17px;
+}
+.card h3 { margin:0 0 6px;font-size:15px }
+.card p { color:var(--muted);font-size:12px;line-height:1.6;margin:0 }
+.card .arrow { position:absolute;right:15px;top:15px;color:var(--muted) }
+.tilelink { display:block;height:100% }
+.tilelink:focus-visible { outline:2px solid var(--accent) }
+.remove {
+  position:absolute;
+  right:10px;bottom:10px;
+  padding:4px 8px;
+  font-size:11px;
+  display:none;
+}
+.card.custom:hover .remove { display:block }
+.addform {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:15px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-top:15px;
+}
+.addform input {
+  flex:1;
+  min-width:130px;
+  color:var(--text);
+  background:#111123;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px;
+}
+#addarea { display:none }
+footer {
+  margin-top:35px;
+  padding:28px 0;
   border-top:1px solid var(--border);
   color:var(--muted);
-  font-size:11px;
+  font-size:12px;
 }
-#status span {
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.footrow {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
 }
-@media(max-width:520px) {
-  .tagline { display:none }
-  #toolbar { gap:2px;padding:7px }
-  #toolbar button { padding:8px }
-  #bookmarks { padding-left:8px }
-  .tab { min-width:75px;padding:8px 6px }
+#message { color:#d3c9ff;font-size:12px;min-height:18px;margin-top:12px }
+@media(max-width:760px) {
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .hero { padding:55px 0 30px }
+  h1 { letter-spacing:-2px }
+}
+@media(max-width:430px) {
+  .wrap { padding:0 14px }
+  .nav { min-height:62px }
+  .navlinks a { padding:8px 6px;font-size:12px }
+  .brand { font-size:15px;gap:7px }
+  .logo { width:34px;height:34px }
+  .grid { gap:9px }
+  .card { padding:15px }
+  .cardicon { width:40px;height:40px }
+  .search button { padding:9px }
 }
 </style>
 </head>
 <body>
-<div id="app">
-  <header class="top">
-    <div class="brandline">
-      <div class="logo">◉</div>
-      <div>
-        <div class="brand">Orbit Browser</div>
-        <div class="tagline">Your corner of the internet</div>
-      </div>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="logo">◉</span>
+      <span>Orbit <span class="gradient">Hub</span></span>
+    </a>
+    <nav class="navlinks">
+      <a href="#resources">Resources</a>
+      <a href="#games">Games</a>
+      <a href="#shortcuts">My links</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top" class="wrap">
+  <section class="hero">
+    <span class="pill">✦ YOUR PERSONAL DASHBOARD</span>
+    <h1>Your space.<br><span class="gradient">Your orbit.</span></h1>
+    <p class="sub">
+      One simple homepage for finding useful websites,
+      learning something new, and taking a break.
+    </p>
+    <form class="search" id="searchform">
+      <input id="query" aria-label="Search the web"
+        placeholder="Search the web or enter a website..."
+        autocomplete="off" required>
+      <button class="primary" type="submit">Search ↗</button>
+    </form>
+    <div id="message" role="status"></div>
+  </section>
+
+  <section class="section" id="resources">
+    <div class="sectionhead">
+      <h2>📚 Learning resources</h2>
+      <span class="small">Learn something today</span>
     </div>
-    <div id="tabs"></div>
-    <div id="toolbar">
-      <button id="back" title="Back">←</button>
-      <button id="forward" title="Forward">→</button>
-      <button id="refresh" title="Refresh">↻</button>
-      <button id="homebtn" title="Home">⌂</button>
-      <input id="address" placeholder="Search or enter a website address"
-        autocomplete="off" spellcheck="false">
-      <button id="star" title="Bookmark this page">☆</button>
-      <button id="go">Go</button>
-      <button id="newtab" title="New tab">＋</button>
+    <div class="grid">
+      <a class="card tilelink" href="https://www.khanacademy.org/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">🎓</div>
+        <h3>Khan Academy</h3><p>Lessons and practice for school subjects.</p>
+      </a>
+      <a class="card tilelink" href="https://www.wikipedia.org/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">📖</div>
+        <h3>Wikipedia</h3><p>Explore articles and discover new topics.</p>
+      </a>
+      <a class="card tilelink" href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">📐</div>
+        <h3>Desmos</h3><p>Graph equations and explore math.</p>
+      </a>
+      <a class="card tilelink" href="https://scratch.mit.edu/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">🧩</div>
+        <h3>Scratch</h3><p>Learn coding by making projects.</p>
+      </a>
     </div>
-    <div id="bookmarks"></div>
-  </header>
+  </section>
 
-  <main>
-    <section id="home">
-      <div class="hero">
-        <div class="orb">◉</div>
-        <h1>Explore further.</h1>
-        <div class="subtitle">A little space for your next destination.</div>
-        <form id="homesearch">
-          <input id="homeinput" placeholder="Search the web or enter a URL..."
-            aria-label="Search the web" autocomplete="off">
-          <button id="homesubmit" type="submit">Search ↗</button>
-        </form>
-      </div>
-      <div class="sectiontitle">QUICK ACCESS</div>
-      <div class="tiles" id="tiles"></div>
-      <div class="sectiontitle">TIP: You can search by typing a question or a website address.</div>
-    </section>
+  <section class="section" id="games">
+    <div class="sectionhead">
+      <h2>🎮 Games & creativity</h2>
+      <span class="small">Explore and create</span>
+    </div>
+    <div class="grid">
+      <a class="card tilelink" href="https://lichess.org/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">♟️</div>
+        <h3>Lichess</h3><p>Play chess and practice tactics.</p>
+      </a>
+      <a class="card tilelink" href="https://www.coolmathgames.com/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">🕹️</div>
+        <h3>Coolmath Games</h3><p>Puzzles, strategy, and casual games.</p>
+      </a>
+      <a class="card tilelink" href="https://poki.com/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">🎯</div>
+        <h3>Poki</h3><p>Discover browser games.</p>
+      </a>
+      <a class="card tilelink" href="https://www.geogebra.org/" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↗</span><div class="cardicon">🌌</div>
+        <h3>GeoGebra</h3><p>Explore interactive math and geometry.</p>
+      </a>
+    </div>
+  </section>
 
-    <iframe id="viewer" title="Website viewer"
-      referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <section class="section" id="shortcuts">
+    <div class="sectionhead">
+      <h2>⭐ My quick links</h2>
+      <button id="toggleadd">＋ Add a link</button>
+    </div>
+    <p class="small">Your custom links are saved in this browser on this device.</p>
+    <div class="grid" id="customlinks"></div>
+    <div id="addarea">
+      <form class="addform" id="addform">
+        <input id="linkname" placeholder="Link name" maxlength="40" required>
+        <input id="linkurl" placeholder="https://example.com" required>
+        <button class="primary" type="submit">Save link</button>
+      </form>
+    </div>
+  </section>
+</main>
 
-    <section id="notice">
-      <div class="noticecard">
-        <div style="font-size:38px">🌐</div>
-        <h2>This page may not support embedding</h2>
-        <p>Some websites prevent other apps from displaying them.
-        This is a website security setting, not a problem with Orbit.</p>
-        <button id="openexternal" style="background:var(--accent);color:#141426">
-          Open website in a new tab ↗
-        </button>
-        <p id="noticeurl" style="overflow-wrap:anywhere"></p>
-        <button id="returnhome">Return to Orbit</button>
-      </div>
-    </section>
-  </main>
-
-  <footer id="status">
-    <span id="statustext">Ready to explore</span>
-    <span>Orbit Browser · Web app</span>
-  </footer>
-</div>
+<footer>
+  <div class="wrap footrow">
+    <span>◉ Orbit Hub · Your personal dashboard</span>
+    <span>Use the web responsibly and follow your school's rules.</span>
+  </div>
+</footer>
 
 <script>
 (function () {
-  "use strict";
+  const $ = id => document.getElementById(id);
+  const KEY = "orbit-hub-links-v1";
+  const message = $("message");
 
-  const $ = function (id) {
-    return document.getElementById(id);
-  };
-
-  const HOME = "__orbit_home__";
-  const STORAGE = "orbit-browser-v1";
-
-  let tabs = [];
-  let activeId = 0;
-  let nextId = 1;
-  let bookmarks = [];
-  let lastExternal = "https://www.google.com/";
-  let homeTiles = [
-    { title:"Google", url:"https://www.google.com/", icon:"🔎" },
-    { title:"Wikipedia", url:"https://www.wikipedia.org/", icon:"📚" },
-    { title:"YouTube", url:"https://www.youtube.com/", icon:"▶️" },
-    { title:"DuckDuckGo", url:"https://duckduckgo.com/", icon:"🦆" }
-  ];
-
-  function loadSaved() {
+  function validUrl(raw) {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}");
-      if (Array.isArray(saved.bookmarks)) {
-        bookmarks = saved.bookmarks.filter(function (b) {
-          return b && typeof b.url === "string" &&
-            typeof b.title === "string";
-        });
+      const u = new URL(raw);
+      if (u.protocol === "https:" || u.protocol === "http:") {
+        return u.href;
       }
     } catch (_) {}
+    return null;
   }
 
-  function save() {
-    try {
-      localStorage.setItem(STORAGE, JSON.stringify({
-        bookmarks: bookmarks
-      }));
-    } catch (_) {}
-  }
-
-  function current() {
-    return tabs.find(function (t) {
-      return t.id === activeId;
-    });
-  }
-
-  function normalize(input) {
-    let value = input.trim();
+  function searchUrl(raw) {
+    const value = raw.trim();
     if (!value) return null;
 
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) {
-      try {
-        const parsed = new URL(value);
-        if (parsed.protocol !== "http:" &&
-            parsed.protocol !== "https:") return null;
-        return parsed.href;
-      } catch (_) {
-        return null;
-      }
-    }
+    const explicit = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value);
+    if (explicit) return validUrl(value);
 
-    if (/^localhost(?::\\d+)?(?:\\/.*)?$/i.test(value) ||
-        /^\\d{1,3}(?:\\.\\d{1,3}){3}(?::\\d+)?(?:\\/.*)?$/.test(value)) {
-      return "http://" + value;
-    }
-
-    if (/^[^\\s]+\\.[^\\s]+$/.test(value) &&
-        !value.includes(" ")) {
-      return "https://" + value;
+    if (/^[^\\s]+\\.[^\\s]+$/.test(value)) {
+      return validUrl("https://" + value);
     }
 
     return "https://www.google.com/search?q=" +
       encodeURIComponent(value);
   }
 
-  function safeUrl(url) {
+  $("searchform").addEventListener("submit", function (event) {
+    event.preventDefault();
+    const destination = searchUrl($("query").value);
+    if (!destination) {
+      message.textContent = "Enter a valid HTTP or HTTPS website address.";
+      return;
+    }
+    window.open(destination, "_blank", "noopener,noreferrer");
+    message.textContent = "Opening your search in a new tab.";
+  });
+
+  function readLinks() {
     try {
-      const parsed = new URL(url);
-      return parsed.protocol === "https:" ||
-        parsed.protocol === "http:";
+      const data = JSON.parse(localStorage.getItem(KEY) || "[]");
+      if (!Array.isArray(data)) return [];
+      return data.filter(item =>
+        item &&
+        typeof item.name === "string" &&
+        typeof item.url === "string" &&
+        validUrl(item.url)
+      ).slice(0, 24);
     } catch (_) {
+      return [];
+    }
+  }
+
+  function saveLinks(links) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(links));
+      return true;
+    } catch (_) {
+      message.textContent = "Couldn't save links in this browser.";
       return false;
     }
   }
 
-  function newTab(url) {
-    const tab = {
-      id: nextId++,
-      title: "New tab",
-      url: HOME,
-      history: [],
-      index: -1
-    };
-    tabs.push(tab);
-    activeId = tab.id;
-    if (url) navigate(url);
-    render();
-  }
-
-  function navigate(input, addHistory) {
-    const url = normalize(input);
-    if (!url || !safeUrl(url)) {
-      $("statustext").textContent =
-        "Enter a valid HTTP or HTTPS website address.";
-      return;
-    }
-
-    const tab = current();
-    if (!tab) return;
-
-    if (addHistory !== false) {
-      tab.history = tab.history.slice(0, tab.index + 1);
-      tab.history.push(url);
-      tab.index = tab.history.length - 1;
-    }
-
-    tab.url = url;
-    tab.title = titleFromUrl(url);
-    lastExternal = url;
-    render();
-    showViewer(url);
-  }
-
-  function titleFromUrl(url) {
-    try {
-      return new URL(url).hostname.replace(/^www\\./, "");
-    } catch (_) {
-      return "Website";
-    }
-  }
-
-  function showViewer(url) {
-    $("home").style.display = "none";
-    $("notice").style.display = "none";
-    $("viewer").style.display = "block";
-    $("viewer").src = url;
-    $("address").value = url;
-    $("statustext").textContent = "Opening " + titleFromUrl(url);
-    updateButtons();
-  }
-
-  function showHome() {
-    const tab = current();
-    if (!tab) return;
-    tab.url = HOME;
-    $("viewer").style.display = "none";
-    $("viewer").src = "about:blank";
-    $("notice").style.display = "none";
-    $("home").style.display = "block";
-    $("address").value = "";
-    $("homeinput").value = "";
-    $("statustext").textContent = "Ready to explore";
-    render();
-  }
-
-  function back() {
-    const tab = current();
-    if (!tab || tab.index <= 0) {
-      showHome();
-      return;
-    }
-    tab.index--;
-    tab.url = tab.history[tab.index];
-    render();
-    showViewer(tab.url);
-  }
-
-  function forward() {
-    const tab = current();
-    if (!tab || tab.index >= tab.history.length - 1) return;
-    tab.index++;
-    tab.url = tab.history[tab.index];
-    render();
-    showViewer(tab.url);
-  }
-
-  function refresh() {
-    const tab = current();
-    if (!tab || tab.url === HOME) {
-      showHome();
-      return;
-    }
-    showViewer(tab.url);
-  }
-
-  function activate(id) {
-    activeId = id;
-    const tab = current();
-    if (!tab) return;
-    render();
-
-    if (tab.url === HOME) showHome();
-    else showViewer(tab.url);
-  }
-
-  function closeTab(id) {
-    if (tabs.length === 1) {
-      tabs = [];
-      newTab();
-      return;
-    }
-
-    const index = tabs.findIndex(function (t) {
-      return t.id === id;
-    });
-    tabs = tabs.filter(function (t) {
-      return t.id !== id;
-    });
-
-    if (activeId === id) {
-      activeId = tabs[Math.max(0, index - 1)].id;
-      activate(activeId);
-    } else {
-      render();
-    }
-  }
-
-  function renderTabs() {
-    const container = $("tabs");
+  function renderLinks() {
+    const container = $("customlinks");
     container.replaceChildren();
+    const links = readLinks();
 
-    tabs.forEach(function (tab) {
-      const el = document.createElement("div");
-      el.className = "tab" + (tab.id === activeId ? " active" : "");
+    if (!links.length) {
+      const empty = document.createElement("div");
+      empty.className = "card";
+      empty.style.gridColumn = "1 / -1";
+      empty.innerHTML =
+        '<div class="cardicon">✨</div><h3>Your links go here</h3>' +
+        '<p>Click “Add a link” to save your favorite websites.</p>';
+      container.appendChild(empty);
+      return;
+    }
 
-      const name = document.createElement("span");
-      name.className = "tabname";
-      name.textContent = tab.url === HOME ? "New tab" : tab.title;
-      name.title = name.textContent;
-      name.addEventListener("click", function () {
-        activate(tab.id);
-      });
+    links.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "card custom";
 
-      const close = document.createElement("button");
-      close.className = "close";
-      close.textContent = "×";
-      close.title = "Close tab";
-      close.addEventListener("click", function (event) {
-        event.stopPropagation();
-        closeTab(tab.id);
-      });
-
-      el.append(name, close);
-      el.addEventListener("click", function () {
-        activate(tab.id);
-      });
-      container.appendChild(el);
-    });
-  }
-
-  function renderBookmarks() {
-    const container = $("bookmarks");
-    container.replaceChildren();
-
-    bookmarks.forEach(function (b, index) {
-      const button = document.createElement("button");
-      button.className = "bookmark";
-      button.textContent = "☆ " + b.title;
-      button.title = b.url;
-      button.addEventListener("click", function () {
-        navigate(b.url);
-      });
-      button.addEventListener("contextmenu", function (event) {
-        event.preventDefault();
-        if (confirm("Remove bookmark " + b.title + "?")) {
-          bookmarks.splice(index, 1);
-          save();
-          renderBookmarks();
-          renderTiles();
-        }
-      });
-      container.appendChild(button);
-    });
-  }
-
-  function renderTiles() {
-    const container = $("tiles");
-    container.replaceChildren();
-
-    homeTiles.forEach(function (tile) {
-      const el = document.createElement("button");
-      el.className = "tile";
-      el.style.textAlign = "left";
+      const link = document.createElement("a");
+      link.className = "tilelink";
+      link.href = item.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
 
       const icon = document.createElement("div");
-      icon.className = "tileicon";
-      icon.textContent = tile.icon;
+      icon.className = "cardicon";
+      icon.textContent = "🔗";
 
-      const title = document.createElement("div");
-      title.className = "tiletitle";
-      title.textContent = tile.title;
+      const title = document.createElement("h3");
+      title.textContent = item.name;
 
-      const url = document.createElement("div");
-      url.className = "tileurl";
-      url.textContent = titleFromUrl(tile.url);
+      const description = document.createElement("p");
+      description.textContent = new URL(item.url).hostname;
 
-      el.append(icon, title, url);
-      el.addEventListener("click", function () {
-        navigate(tile.url);
+      link.append(icon, title, description);
+
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", "Remove " + item.name);
+      remove.addEventListener("click", () => {
+        const next = readLinks();
+        next.splice(index, 1);
+        saveLinks(next);
+        renderLinks();
+        message.textContent = "Link removed.";
       });
-      container.appendChild(el);
-    });
 
-    bookmarks.slice(0, 4).forEach(function (b) {
-      const el = document.createElement("button");
-      el.className = "tile";
-      el.style.textAlign = "left";
-
-      const icon = document.createElement("div");
-      icon.className = "tileicon";
-      icon.textContent = "☆";
-
-      const title = document.createElement("div");
-      title.className = "tiletitle";
-      title.textContent = b.title;
-
-      const url = document.createElement("div");
-      url.className = "tileurl";
-      url.textContent = titleFromUrl(b.url);
-
-      el.append(icon, title, url);
-      el.addEventListener("click", function () {
-        navigate(b.url);
-      });
-      container.appendChild(el);
+      card.append(link, remove);
+      container.appendChild(card);
     });
   }
 
-  function render() {
-    renderTabs();
-    renderBookmarks();
-    renderTiles();
-    updateButtons();
-
-    const tab = current();
-    if (tab) {
-      $("address").value = tab.url === HOME ? "" : tab.url;
-      $("star").textContent = bookmarks.some(function (b) {
-        return b.url === tab.url;
-      }) ? "★" : "☆";
-    }
-  }
-
-  function updateButtons() {
-    const tab = current();
-    $("back").disabled = !tab ||
-      (tab.index <= 0 && tab.url === HOME);
-    $("forward").disabled = !tab ||
-      tab.index >= tab.history.length - 1;
-  }
-
-  function submitAddress(value) {
-    const tab = current();
-    if (!tab) return;
-    navigate(value);
-  }
-
-  function addBookmark() {
-    const tab = current();
-    if (!tab || tab.url === HOME) {
-      $("statustext").textContent =
-        "Open a website before bookmarking it.";
-      return;
-    }
-
-    const existing = bookmarks.findIndex(function (b) {
-      return b.url === tab.url;
-    });
-
-    if (existing >= 0) {
-      bookmarks.splice(existing, 1);
-      $("statustext").textContent = "Bookmark removed";
-    } else {
-      bookmarks.unshift({
-        title: tab.title || titleFromUrl(tab.url),
-        url: tab.url
-      });
-      $("statustext").textContent = "Bookmark saved";
-    }
-
-    save();
-    render();
-  }
-
-  $("go").addEventListener("click", function () {
-    submitAddress($("address").value);
+  $("toggleadd").addEventListener("click", () => {
+    const area = $("addarea");
+    const opening = area.style.display !== "block";
+    area.style.display = opening ? "block" : "none";
+    $("toggleadd").textContent = opening ? "✕ Cancel" : "＋ Add a link";
+    if (opening) $("linkname").focus();
   });
 
-  $("address").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") submitAddress($("address").value);
-  });
-
-  $("homesearch").addEventListener("submit", function (event) {
+  $("addform").addEventListener("submit", event => {
     event.preventDefault();
-    const value = $("homeinput").value.trim();
-    if (value) submitAddress(value);
-  });
 
-  $("back").addEventListener("click", back);
-  $("forward").addEventListener("click", forward);
-  $("refresh").addEventListener("click", refresh);
-  $("homebtn").addEventListener("click", showHome);
-  $("newtab").addEventListener("click", function () {
-    newTab();
-  });
-  $("star").addEventListener("click", addBookmark);
+    const name = $("linkname").value.trim();
+    const url = validUrl($("linkurl").value.trim());
 
-  $("openexternal").addEventListener("click", function () {
-    const url = lastExternal;
-    if (safeUrl(url)) {
-      window.open(url, "_blank", "noopener,noreferrer");
+    if (!name || !url) {
+      message.textContent = "Enter a name and a valid HTTP or HTTPS URL.";
+      return;
+    }
+
+    const links = readLinks();
+    if (links.length >= 24) {
+      message.textContent = "You can save up to 24 custom links.";
+      return;
+    }
+
+    links.push({ name, url });
+    if (saveLinks(links)) {
+      $("addform").reset();
+      $("addarea").style.display = "none";
+      $("toggleadd").textContent = "＋ Add a link";
+      renderLinks();
+      message.textContent = "Your link has been saved!";
     }
   });
 
-  $("returnhome").addEventListener("click", showHome);
-
-  $("viewer").addEventListener("load", function () {
-    const tab = current();
-    if (tab && tab.url !== HOME) {
-      $("statustext").textContent =
-        "Website loaded if supported by the destination.";
-    }
-  });
-
-  document.addEventListener("keydown", function (event) {
-    if ((event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "l") {
-      event.preventDefault();
-      $("address").focus();
-      $("address").select();
-    }
-
-    if ((event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "t") {
-      event.preventDefault();
-      newTab();
-    }
-
-    if ((event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "w" && tabs.length > 1) {
-      event.preventDefault();
-      closeTab(activeId);
-    }
-  });
-
-  loadSaved();
-  newTab();
+  renderLinks();
 })();
 </script>
 </body>
@@ -791,5 +516,5 @@ h1 {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("Orbit Browser running on port " + PORT);
+  console.log("Orbit Hub listening on port " + PORT);
 });
